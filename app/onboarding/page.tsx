@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
@@ -54,22 +54,60 @@ export default function OnboardingCarousel() {
   const [touchEnd, setTouchEnd] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [slideRatings, setSlideRatings] = useState<Record<number, "up" | "down" | null>>({})
+  const [isPaused, setIsPaused] = useState(false)
+  const autoScrollTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // Auto-scroll functionality
+  useEffect(() => {
+    // Start the auto-scroll timer
+    const startAutoScroll = () => {
+      if (autoScrollTimerRef.current) {
+        clearInterval(autoScrollTimerRef.current)
+      }
+
+      autoScrollTimerRef.current = setInterval(() => {
+        if (!isPaused) {
+          handleNext()
+        }
+      }, 3000)
+    }
+
+    startAutoScroll()
+
+    // Clean up on unmount
+    return () => {
+      if (autoScrollTimerRef.current) {
+        clearInterval(autoScrollTimerRef.current)
+      }
+    }
+  }, [activeSlide, isPaused])
+
+  // Pause auto-scroll when user is interacting
+  const pauseAutoScroll = () => {
+    setIsPaused(true)
+  }
+
+  const resumeAutoScroll = () => {
+    setIsPaused(false)
+  }
 
   const handleNext = () => {
-    if (activeSlide < onboardingSlides.length - 1 && !isTransitioning) {
+    if (!isTransitioning) {
       setIsTransitioning(true)
       setTimeout(() => {
-        setActiveSlide((prev) => prev + 1)
+        // Circular navigation: if at the last slide, go back to the first
+        setActiveSlide((prev) => (prev === onboardingSlides.length - 1 ? 0 : prev + 1))
         setIsTransitioning(false)
       }, 300)
     }
   }
 
   const handlePrev = () => {
-    if (activeSlide > 0 && !isTransitioning) {
+    if (!isTransitioning) {
       setIsTransitioning(true)
       setTimeout(() => {
-        setActiveSlide((prev) => prev - 1)
+        // Circular navigation: if at the first slide, go to the last
+        setActiveSlide((prev) => (prev === 0 ? onboardingSlides.length - 1 : prev - 1))
         setIsTransitioning(false)
       }, 300)
     }
@@ -87,6 +125,7 @@ export default function OnboardingCarousel() {
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX)
+    pauseAutoScroll()
   }
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -105,6 +144,9 @@ export default function OnboardingCarousel() {
         handlePrev()
       }
     }
+
+    // Resume auto-scroll after a short delay
+    setTimeout(resumeAutoScroll, 5000)
   }
 
   const handleThumbsRating = (slideId: number, rating: "up" | "down") => {
@@ -150,8 +192,8 @@ export default function OnboardingCarousel() {
                     transition={{ duration: 0.3 }}
                     className="absolute inset-0 flex flex-col"
                   >
-                    {/* SVG image with 40% viewport height and full width */}
-                    <div className="w-full h-[40vh] overflow-hidden">
+                    {/* SVG image with 55% viewport height and full width */}
+                    <div className="w-full h-[55vh] overflow-hidden">
                       <Image
                         src={
                           index === 1
@@ -189,7 +231,7 @@ export default function OnboardingCarousel() {
         </div>
 
         {/* Fixed bottom section with pagination and buttons */}
-        <div className="absolute bottom-0 left-0 right-0 bg-white pt-4 px-6 pb-6">
+        <div className="absolute bottom-0 left-0 right-0 bg-white pt-4 px-6 pb-4">
           {/* Pagination dots with moving indicator */}
           <div className="flex justify-center mb-8 relative">
             <div className="flex space-x-1.5">
@@ -214,13 +256,14 @@ export default function OnboardingCarousel() {
             />
           </div>
 
-          {/* Button group - fixed at bottom with 24px padding */}
+          {/* Button group - fixed at bottom with 16px padding */}
           <div className="space-y-3">
             {/* Primary Button */}
             <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }}>
               <button
                 className="w-full h-[48px] px-4 bg-indigo-700 text-white font-bold rounded-[12px] flex items-center justify-center transition-colors active:bg-indigo-800"
                 style={{ borderRadius: "12px" }}
+                onClick={pauseAutoScroll}
               >
                 <span>Explore motor club</span>
                 <ArrowRight className="ml-2 h-5 w-5" strokeWidth={1.5} />
@@ -232,6 +275,7 @@ export default function OnboardingCarousel() {
               <button
                 className="w-full h-[48px] px-4 text-gray-400 font-bold rounded-[12px] flex items-center justify-center transition-colors active:text-gray-500"
                 style={{ borderRadius: "12px" }}
+                onClick={pauseAutoScroll}
               >
                 Go back
               </button>
