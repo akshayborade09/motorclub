@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState } from "react"
 import Image from "next/image"
-import { ArrowRight, ThumbsUp, ThumbsDown } from "lucide-react"
+import { ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useOrientation } from "@/hooks/use-orientation"
 import { OrientationMessage } from "@/components/orientation-message"
@@ -180,54 +180,7 @@ export default function OnboardingCarousel() {
                       className="px-6 py-8 flex flex-col items-center"
                     >
                       <h1 className="text-xl font-bold mb-2 text-center text-gray-800">{slide.title}</h1>
-                      <p className="text-gray-600 mb-4 text-center">{slide.description}</p>
-
-                      {/* Thumbs rating section */}
-                      <div className="flex items-center justify-center space-x-8 mt-4 mb-4">
-                        <motion.button
-                          whileTap={{ scale: 0.85 }}
-                          transition={{ duration: 0.1 }}
-                          onClick={() => handleThumbsRating(slide.id, "up")}
-                          className={`p-3 rounded-full ${
-                            slideRatings[slide.id] === "up"
-                              ? "bg-green-100 text-green-600"
-                              : "bg-gray-100 text-gray-500"
-                          }`}
-                          aria-label="Thumbs up"
-                        >
-                          <ThumbsUp className="h-6 w-6" />
-                        </motion.button>
-
-                        <motion.button
-                          whileTap={{ scale: 0.85 }}
-                          transition={{ duration: 0.1 }}
-                          onClick={() => handleThumbsRating(slide.id, "down")}
-                          className={`p-3 rounded-full ${
-                            slideRatings[slide.id] === "down" ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-500"
-                          }`}
-                          aria-label="Thumbs down"
-                        >
-                          <ThumbsDown className="h-6 w-6" />
-                        </motion.button>
-                      </div>
-
-                      {/* Feedback message based on rating */}
-                      <AnimatePresence mode="wait">
-                        {slideRatings[slide.id] && (
-                          <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className={`text-sm font-medium ${
-                              slideRatings[slide.id] === "up" ? "text-green-600" : "text-red-600"
-                            }`}
-                          >
-                            {slideRatings[slide.id] === "up"
-                              ? "Thanks for your positive feedback!"
-                              : "We appreciate your feedback and will improve this."}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
+                      <p className="text-gray-600 mb-8 text-center">{slide.description}</p>
                     </motion.div>
                   </motion.div>
                 ),
