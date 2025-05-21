@@ -4,6 +4,7 @@ import type React from "react"
 
 import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useOrientation } from "@/hooks/use-orientation"
@@ -48,6 +49,7 @@ const onboardingSlides = [
 ]
 
 export default function OnboardingCarousel() {
+  const router = useRouter()
   const orientation = useOrientation()
   const [activeSlide, setActiveSlide] = useState(0)
   const [touchStart, setTouchStart] = useState(0)
@@ -162,6 +164,13 @@ export default function OnboardingCarousel() {
     })
   }
 
+  const handleExploreClick = () => {
+    // Pause auto-scroll
+    pauseAutoScroll()
+    // Navigate to dashboard
+    router.push("/dashboard")
+  }
+
   // Show orientation message if in landscape mode
   if (orientation === "landscape") {
     return <OrientationMessage />
@@ -263,7 +272,7 @@ export default function OnboardingCarousel() {
               <button
                 className="w-full h-[48px] px-4 bg-indigo-700 text-white font-bold rounded-[12px] flex items-center justify-center transition-colors active:bg-indigo-800"
                 style={{ borderRadius: "12px" }}
-                onClick={pauseAutoScroll}
+                onClick={handleExploreClick}
               >
                 <span>Explore motor club</span>
                 <ArrowRight className="ml-2 h-5 w-5" strokeWidth={1.5} />
