@@ -150,8 +150,8 @@ export default function OnboardingCarousel() {
                     transition={{ duration: 0.3 }}
                     className="absolute inset-0 flex flex-col"
                   >
-                    {/* SVG image full width */}
-                    <div className="w-full">
+                    {/* SVG image with 40% viewport height and full width */}
+                    <div className="w-full h-[40vh] overflow-hidden">
                       <Image
                         src={
                           index === 1
@@ -165,9 +165,9 @@ export default function OnboardingCarousel() {
                                   : "/images/svg1.svg"
                         }
                         alt="Motor club illustration"
-                        width={393}
-                        height={320}
-                        className="w-full h-auto"
+                        width={1200}
+                        height={800}
+                        className="w-full h-full object-cover object-center"
                         priority
                       />
                     </div>
